@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import expertAsset from "@/assets/expert.png.asset.json";
+import expertImg from "@/assets/expert.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -36,7 +36,7 @@ function Index() {
         {/* Expert image with fade */}
         <div className="relative mx-auto mt-2 w-[180px] sm:w-[200px]">
           <img
-            src={expertAsset.url}
+            src={expertImg}
             alt="Especialista em emagrecimento"
             className="block h-auto w-full object-contain"
             loading="eager"
