@@ -1,17 +1,32 @@
-## Contexto
-A landing page atual possui **uma única imagem**: a foto da expert (`expert.png`). Ela já está configurada como asset CDN, com o ponteiro `.asset.json` localizado em `src/assets/expert.png.asset.json`, e o código a importa via `@/assets/expert.png.asset.json`. Os ícones (Check, Warn) são SVGs inline e não exigem assets externos.
+## Problema
 
-## Plano
+A imagem da expert está como ponteiro Lovable Asset (`src/assets/expert.png.asset.json`) apontando para `/__l5e/assets-v1/...`. Esse caminho **só existe no servidor da Lovable**. Quando você faz deploy via GitHub → Cloudflare Pages, esse endpoint não existe no Cloudflare, então a imagem quebra (ícone de imagem partida que aparece no print).
 
-1. **Validar build atual**
-   - Executar `bun run build` para confirmar que não há erros de resolução de módulo ou de asset.
-   - Se o build passar, o setup já está correto — nenhuma alteração necessária.
+O build passa porque é só um JSON; o erro só aparece em runtime no Cloudflare.
 
-2. **Corrigir apenas se houver erro**
-   - Se o build falhar por causa do asset, ajustar a importação ou o ponteiro `.asset.json` para garantir que o Vite/TanStack Start resolva corretamente o caminho `/__l5e/assets-v1/...`.
+## Solução
 
-3. **Confirmar estrutura**
-   - Garantir que todos os arquivos `.asset.json` (ponteiros CDN) permaneçam em `src/assets/` para que o build reconheça as referências.
+Trazer a imagem para dentro do repositório como arquivo real, importado pelo Vite, para que o bundler a inclua em `dist/assets/` no build — assim funciona em qualquer host (Cloudflare, Vercel, Netlify, etc.).
 
-## Nota
-O usuário optou por **manter no CDN**. O formato atual já é o padrão correto do Lovable: o arquivo binário fica no CDN e o projeto contém apenas o ponteiro `.asset.json` em `src/assets/`. Nenhuma migração de localização é necessária se o build estiver verde.
+## Passos
+
+1. Baixar o binário do CDN Lovable (`expert.png`, asset_id `88e57888-...`) e salvar em `src/assets/expert.png`.
+2. Apagar o ponteiro `src/assets/expert.png.asset.json`.
+3. Em `src/routes/index.tsx`, trocar:
+   ```ts
+   import expertAsset from "@/assets/expert.png.asset.json";
+   // ...
+   <img src={expertAsset.url} ... />
+   ```
+   por:
+   ```ts
+   import expertImg from "@/assets/expert.png";
+   // ...
+   <img src={expertImg} ... />
+   ```
+4. Rodar `bun run build` localmente para confirmar que a imagem aparece em `dist/assets/expert-*.png` com hash e que o build continua verde.
+5. Commit + push → Cloudflare faz novo deploy e a imagem carrega normalmente.
+
+## Observação
+
+Para futuros deploys no Cloudflare via GitHub: **não use** ponteiros `.asset.json` (CDN Lovable). Sempre importe imagens diretamente de `src/assets/` para que o Vite empacote no build.
