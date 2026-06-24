@@ -27,8 +27,7 @@ function Index() {
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // hook up later
-    console.log(form);
+    window.location.href = "https://ludcarnevale.com/";
   };
 
   return (
