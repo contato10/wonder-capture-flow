@@ -36,7 +36,7 @@ function Index() {
         {/* Expert image with fade */}
         <div className="relative mx-auto mt-2 w-[180px] sm:w-[200px]">
           <img
-            src={expertAsset.url}
+            src={expertImg}
             alt="Especialista em emagrecimento"
             className="block h-auto w-full object-contain"
             loading="eager"
